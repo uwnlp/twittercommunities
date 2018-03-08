@@ -1,0 +1,11 @@
+{
+    "pooling": "mean",
+    "tweets_per_person": 50,
+    "freeze_embeddings": false,
+    "use_pretrained_embeddings": false,
+    "cos_dist": true,
+    "margin": 1.0,
+    "iters": 500000,
+    "weighting": "log",
+    "vocab_size": 173982 
+}
