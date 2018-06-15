@@ -1,18 +1,14 @@
-"""
-Module to train or evaluate RE-ID model
-"""
+"""Module to train or evaluate RE-ID model."""
 import argparse
 import random
 import os
 import gzip
 import json
-import glob
 import logging
 
 import numpy as np
 import pandas
 import tensorflow as tf
-import gensim
 
 import helper
 from metrics import MovingAvg
@@ -107,16 +103,19 @@ session.run(tf.global_variables_initializer())
 if params['use_pretrained_embeddings']:
     logging.info('loading and initializing pre-trained embeddings')
     embeddings = np.zeros((len(vocab), 128))
-    with gzip.open('/g/ssli/data/word2vec_full.txt.gz', 'r') as f:
+    with gzip.open('/g/ssli/data/surf/word2vec_full.txt.gz', 'r') as f:
         for line in f:
             fields = line.split()
             word = fields[0]
-            index = vocab[word]
             embed = [float(x) for x in fields[1:]]
-            embeddings[index, :] = embed
-    embed_placeholder = tf.placeholder(tf.float32, [len(vocab), 128], name='embed_placeholder')
+            embeddings[vocab[word], :] = embed
+    # Use a placeholder and assign_op to initialize the word embeddings with 
+    # the pre-trained word2vec vectors.
+    embed_placeholder = tf.placeholder(tf.float32, [len(vocab), 128], 
+                                       name='embed_placeholder')
     assign_op = tf.assign(mymodel.word_embeddings, embed_placeholder)
     session.run(assign_op, {embed_placeholder: embeddings})
+
 
 def GetFeedDict(df, user_ids):
     """Pick a random triplet and create the feed dict for it."""
@@ -133,12 +132,9 @@ def GetFeedDict(df, user_ids):
                  mymodel.word_count_anchor: anchor_counts}
     return feed_dict
 
-def Train():
+
+def Train(data):
     """Train the model, feeding in a random triplet every iteration."""
-    if args.data:
-        data = args.data
-    else:
-        data = glob.glob('/g/ssli/data/surf/csv/train_df_*')
     df, user_ids = build_df(data) 
 
     avgloss = MovingAvg()  # less noisy to print moving average of loss
@@ -160,16 +156,11 @@ def Train():
     saver.save(session, os.path.join(args.expdir, 'model.bin'))
 
 
-def Eval():
+def Eval(data):
     """This function evaluates on the person re-identification proxy task.
 
     This is not used for evaluting on the community detection task.
     """
-    if args.data:
-        data = args.data
-    else:
-        data = glob.glob('/g/ssli/data/surf/csv/test_df_*')
-
     df, user_ids = build_df(data) 
     saver.restore(session, os.path.join(args.expdir, 'model.bin'))
 
@@ -183,6 +174,6 @@ def Eval():
 
 if __name__ == '__main__':
     if args.mode == 'train':
-        Train()
+        Train(args.data)
     else:
-        Eval()
+        Eval(args.data)
