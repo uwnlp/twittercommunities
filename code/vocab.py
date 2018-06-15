@@ -5,12 +5,11 @@ import numpy as np
 import pickle
 import re
 import gzip
-import pdb
 
 
 class Vocab(object):
 
-  def __init__(self, tokenset, unk_symbol='<UNK>', token_counts=None):
+  def __init__(self, tokenset, unk_symbol='<UNK>'):
     self.vocab_size = len(tokenset)
     self.unk_symbol = unk_symbol
 
@@ -19,17 +18,19 @@ class Vocab(object):
     self.idx_to_word = dict(zip(self.word_to_idx.values(),
                             self.word_to_idx.keys()))
 
-    if token_counts:
-        self.token_counts = [token_counts[self.idx_to_word[i]] for i in
-                             range(self.vocab_size)]
-    else:
-       self.token_counts = None
-
   @staticmethod
   def Load(filename):
-    with open(filename, 'rb') as f:
-      v = pickle.load(f)
+    if filename.endswith('.pickle'):
+      with open(filename, 'rb') as f:
+        v = pickle.load(f)
+
+    with open(filename, 'rt') as f:
+      words = []
+      for line in f:
+        words.append(line.strip())
+      v = Vocab(words)
     return v
+
 
   @classmethod
   def MakeFromData(cls, lines, min_count, unk_symbol='<UNK>',
@@ -53,7 +54,7 @@ class Vocab(object):
       tokenset.add(unk_symbol)
       tokenset.add('</S>')
 
-    return cls(tokenset, unk_symbol=unk_symbol, token_counts=token_counts)
+    return cls(tokenset, unk_symbol=unk_symbol)
 
 
   @classmethod
@@ -116,8 +117,6 @@ if __name__ == '__main__':
   parser.add_argument('filename')
   args = parser.parse_args()
 
-  if args.filename.endswith('.pickle'):
-    v = Vocab.Load(args.filename)
-
-    for i in v.GetWords():
-      print(i)
+  v = Vocab.Load(args.filename)
+  for i in v.GetWords():
+    print(i)

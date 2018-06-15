@@ -35,7 +35,7 @@ parser.add_argument('--communities', type=str,
                     help='csv file to load the community tweets from')
 parser.add_argument('--debug', action='store_true', default=False)
 args = parser.parse_args()
-vocab = Vocab.Load('/g/ssli/data/surf/w2v_vocab.pickle')
+vocab = Vocab.Load('../data/vocab.txt')
 
 # load the communities
 print 'loading communities'

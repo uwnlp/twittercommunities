@@ -45,7 +45,7 @@ with open(args.params, 'r') as f:
     params = json.load(f)
 
 random.seed(666)
-vocab = Vocab.Load('/g/ssli/data/surf/w2v_vocab.pickle')
+vocab = Vocab.Load('../data/vocab.txt')
 
 def build_df(data):
     dfs = []
