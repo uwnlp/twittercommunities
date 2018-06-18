@@ -29,11 +29,12 @@ There are two metrics: AUC and 1/MRR.
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--expdir', type=str, help='experiment directory',
-                    default='/g/ssli/data/surf/embedding_models/opt_reg')
+                    default='../models/w2v_init')
+parser.add_argument('--datadir', type=str,
+                    help='where to find the non-community members')
 parser.add_argument('--communities', type=str, 
-                    default='/g/ssli/data/surf/aaron_crawl/communities.csv.gz',
+                    default='../data/communities.csv.gz',
                     help='csv file to load the community tweets from')
-parser.add_argument('--debug', action='store_true', default=False)
 args = parser.parse_args()
 vocab = Vocab.Load('../data/vocab.txt')
 
@@ -44,19 +45,12 @@ df = pandas.read_csv(args.communities, dtype={'user': str})
 # load all the random people
 print 'loading randos'
 randos = []
-if args.debug:
-    for i in range(4):
-        randos.append(pandas.read_csv('/g/ssli/data/surf/csv/test_df_{0}.csv'.format(i),
-                  dtype={'user':str}, usecols=['text', 'user', 'timestamp']))
-    randos = pandas.concat(randos)
-
-else:
-    filenames = glob.glob('/g/ssli/data/surf/csv/test_df_*.csv')
-    for name in filenames:
-        randos.append(
-            pandas.read_csv(name, dtype={'user':str}, 
-                            usecols=['text', 'user', 'timestamp']))
-    randos = pandas.concat(randos)
+filenames = glob.glob(os.path.join(args.datadir, '*.csv'))
+for name in filenames:
+    randos.append(
+        pandas.read_csv(name, dtype={'user':str}, 
+                        usecols=['text', 'user', 'timestamp']))
+randos = pandas.concat(randos)
 
 # tokenize everything
 print 'tokenizing communities'
