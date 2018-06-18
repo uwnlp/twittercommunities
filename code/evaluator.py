@@ -96,7 +96,7 @@ def Aggregate(users, flag=False, tokenize=False):
     feat_vec = helper.GetEmbed(mymodel, session, word_ids, counts)
     aggregate.append((user, feat_vec))
 
-  return pandas.DataFrame(aggregate, columns=['user', 'feat']
+  return pandas.DataFrame(aggregate, columns=['user', 'feat'])
 
 rando_feats = Aggregate(rando_users, tokenize=True)
 rando_feats['label'] = 'rando'
