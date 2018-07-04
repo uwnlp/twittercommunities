@@ -10,7 +10,6 @@ import ujson as json
 import random
 import re
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--datadir', help='where to look for input files')
 parser.add_argument('--outdir', help='where to write output')
@@ -20,13 +19,12 @@ args = parser.parse_args()
 pattern = re.compile('[^a-zA-Z\d\s#@]+')
 punct_regex = re.compile(r'[\n\r\.\?!,:\"]+')
 
-# phraser model to find bigrams
-phraser = gensim.models.phrases.Phraser.load('../models/phraser.bin')
-
-
 filenames = glob.glob(os.path.join(args.datadir, '*/*.gz'))
 random.shuffle(filenames)
 print('num files {0}'.format(len(filenames)))
+
+# phraser model to find bigrams
+phraser = gensim.models.phrases.Phraser.load('../models/phraser.bin.gz')
 
 
 def SaveRows(rows, filename):
